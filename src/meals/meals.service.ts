@@ -22,6 +22,7 @@ export class MealsService {
       data: {
         ...createMealDto,
         vendorId,
+        imageUrl: createMealDto.imageUrl ?? '',
       },
     });
   }

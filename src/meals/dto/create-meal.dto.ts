@@ -5,7 +5,6 @@ import {
   IsNumber,
   IsPositive,
   IsString,
-  IsUrl,
   ArrayMinSize,
   ArrayMaxSize,
   IsOptional,
@@ -25,9 +24,9 @@ export class CreateMealDto {
   @IsPositive()
   price: number;
 
-  @IsUrl()
-  @IsNotEmpty()
-  imageUrl: string;
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 
   @IsArray()
   @ArrayMinSize(1)
@@ -55,8 +54,7 @@ export class UpdateMealDto {
   @IsOptional()
   price?: number;
 
-  @IsUrl()
-  @IsNotEmpty()
+  @IsString()
   @IsOptional()
   imageUrl?: string;
 
