@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  CUSTOMER
+  VENDOR
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MealCategory {
+  SWALLOW
+  SOUP
+  NIGERIA_DISH
+  INTERCONTINENTAL_DISH
+  PASTRIES
+  LOCAL
+}
+
+enum MealStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+}
+
+enum OrderStatus {
+  ORDERED
+  PROCESSING
+  DELIVERED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  username  String?  @unique
+  role      UserRole
+  gender    Gender
+  phone     String
+  location  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Vendor specific fields
+  restaurantName   String?
+  businessId       String?
+  companyPhone     String?
+
+  // Relations
+  meals           Meal[]
+  customerOrders  Order[] @relation("CustomerOrders")
+  vendorOrders    Order[] @relation("VendorOrders")
+
+  @@map("users")
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  quantity    Int
+  totalPrice  Float
+  status      OrderStatus @default(ORDERED)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  customerId String
+  customer   User @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+  
+  vendorId   String
+  vendor     User @relation("VendorOrders", fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  mealId     String
+  meal       Meal @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  @@map("orders")
+}
+
+model Meal {
+  id          String       @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  imageUrl    String
+  status      MealStatus   @default(IN_STOCK)
+  categories  MealCategory[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  vendorId String
+  vendor   User   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  orders   Order[]
+
+  @@map("meals")
+}
